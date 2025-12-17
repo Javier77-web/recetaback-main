@@ -8,8 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -30,10 +29,11 @@ public class Subcategoria {
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
-    @JsonBackReference // ✅ evita recursión infinita
     private Categoria categoria;
 
     @OneToMany(mappedBy = "subcategoria")
+    @JsonIgnore   // 👈 evita recursión con recetas
     private List<Receta> recetas;
 }
+
 

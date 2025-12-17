@@ -1,12 +1,13 @@
 package com.example.backrecet.model;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -26,10 +27,10 @@ public class Categoria {
     private String nombre;
 
     @OneToMany(mappedBy = "categoria")
-    @JsonManagedReference // ✅ se serializa aquí
+    @JsonIgnore   // 👈 evita recursión con subcategorias
     private List<Subcategoria> subcategorias;
 
     @OneToMany(mappedBy = "categoria")
+    @JsonIgnore   // 👈 evita recursión con recetas
     private List<Receta> recetas;
 }
-
