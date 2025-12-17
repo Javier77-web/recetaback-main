@@ -3,6 +3,7 @@ package com.example.backrecet.service;
 import com.example.backrecet.model.Usuario;
 import com.example.backrecet.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,18 +15,17 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Crear o actualizar usuario con validación de email
-    public Usuario guardar(Usuario usuario) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        // Si es un usuario nuevo
+    public Usuario guardar(Usuario usuario) {
         if (usuario.getId() == null) {
             if (usuarioRepository.existsByEmail(usuario.getEmail())) {
                 throw new IllegalArgumentException("EMAIL_DUPLICADO");
             }
-        }
-
-        // Si está actualizando
-        else {
+            // 🔑 Encriptar contraseña al registrar
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        } else {
             Usuario existente = usuarioRepository.findById(usuario.getId())
                     .orElseThrow(() -> new IllegalArgumentException("USUARIO_NO_ENCONTRADO"));
 
@@ -33,8 +33,12 @@ public class UsuarioService {
                     usuarioRepository.existsByEmail(usuario.getEmail())) {
                 throw new IllegalArgumentException("EMAIL_DUPLICADO");
             }
-        }
 
+            // 🔑 Si actualiza contraseña, también encriptar
+            if (usuario.getPassword() != null) {
+                usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            }
+        }
         return usuarioRepository.save(usuario);
     }
 

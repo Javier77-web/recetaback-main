@@ -4,6 +4,7 @@ import com.example.backrecet.model.Usuario;
 import com.example.backrecet.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,18 +72,22 @@ public class UsuarioController {
     }
 
     // ✅ Nuevo endpoint para login
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         return usuarioService.buscarPorEmail(request.getEmail())
-                .map(usuario -> {
-                    if (usuario.getPassword().equals(request.getPassword())) {
-                        return ResponseEntity.ok(usuario);
-                    } else {
-                        return ResponseEntity.status(401).body("Contraseña incorrecta");
-                    }
-                })
-                .orElse(ResponseEntity.status(404).body("Usuario no encontrado"));
+            .map(usuario -> {
+                if (passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+                    return ResponseEntity.ok(usuario);
+                } else {
+                    return ResponseEntity.status(401).body("Contraseña incorrecta");
+                }
+            })
+            .orElse(ResponseEntity.status(404).body("Usuario no encontrado"));
     }
+
 
     // DTO para login
     public static class LoginRequest {
